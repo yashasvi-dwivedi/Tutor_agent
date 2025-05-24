@@ -17,7 +17,7 @@ async function detectSubject(question) {
         return 'physics';
     }
     // Fallback: ask Gemini to classify
-    const subject = await callGeminiAPI({ question, intent: true }); // You'd implement intent recognition in Gemini
+    const subject = await callGeminiAPI({ question, intent: true }); // Implement intent recognition in Gemini
     return subject || 'general';
 }
 

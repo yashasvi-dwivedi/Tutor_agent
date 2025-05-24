@@ -15,6 +15,14 @@ app.post('/ask', async (req, res) => {
     } catch (err) {
         res.status(500).send('Error: ' + err.message);
     }
+    app.post('/ask', async (req, res) => {
+        const question = req.body.question;
+        console.log('API received:', question);
+
+        const response = await physicsAgent.respond(question);
+        res.send(response);
+    });
+
 });
 app.get('/', (req, res) => {
     res.send('Gemini API is running. Use POST /ask to interact.');

@@ -1,7 +1,7 @@
 const math = require('mathjs');
 const callGeminiAPI = require('../../services/geminiService');
 
-// Simple calculator tool
+// Simple calculator tool for basic expressions
 function simpleCalculator(expression) {
     try {
         if (!/^[\d\s\+\-\*\/\.\(\)]+$/.test(expression)) return null;
@@ -11,26 +11,35 @@ function simpleCalculator(expression) {
     }
 }
 
+// Extract math expression from question
+function extractExpression(question) {
+    const q = question.toLowerCase().trim();
+    let match = q.match(/(?:calculate|compute|evaluate|solve|result of|what is)\s(.+?)[\?\.]?$/i);
+    if (match) return match[1];
+    return q.replace(/^(what is|calculate|compute|evaluate|solve)\s+/i, '').replace(/[\?\.]+$/, '').trim();
+}
+
 module.exports = {
     respond: async (question) => {
-        // Try to extract and solve a math expression
-        const match = question.match(/result of (.+?)[\?\.]?$/i);
-        let expression = match ? match[1] : question;
+        console.log("\n[ Math Agent ] Received question:", question);
 
-        // Use simple calculator if explicit calculation detected
-        if (/^\s*[\d\.\s\+\-\*\/\(\)]+$/.test(expression)) {
-            const calcResult = simpleCalculator(expression);
-            if (calcResult !== null) {
-                return `Math agent (calculator): The answer is ${calcResult}`;
+        const expression = extractExpression(question);
+        console.log("[ Math Agent ] Extracted expression:", expression);
+
+        // Check for simple math expression
+        if (/^[\d\.\s\+\-\*\/\(\)]+$/.test(expression)) {
+            const result = simpleCalculator(expression);
+            if (result !== null) {
+                return `Math agent (calculator): The answer is ${result}`;
             }
         }
 
-        // Use mathjs for more complex math
+        // Use mathjs for complex expressions
         try {
             const result = math.evaluate(expression);
             return `Math agent: The answer is ${result}`;
-        } catch {
-            // Fallback to Gemini API if unable to solve
+        } catch (error) {
+            console.log("[ Math Agent ] Error evaluating expression:", error.message);
             return await callGeminiAPI(question);
         }
     }
