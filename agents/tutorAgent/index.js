@@ -1,17 +1,16 @@
 const nlp = require('compromise');
-const mathAgent = require('../mathAgent');
-const physicsAgent = require('../physicsAgent');
-const callGeminiAPI = require('../services/geminiService');
 
-function detectSubject(question){
+function detectSubject(question) {
     const q = question.toLowerCase();
     const doc = nlp(q);
 
-    // Math detection
+    // Math detection with phrase patterns
     if (
-        doc.has('math') ||
+        doc.match('what is the result of #Value+').found ||
+        doc.match('solve for #Noun').found ||
+        doc.match('calculate the #Noun').found ||
         doc.has('algebra') ||
-         doc.has('geometry') ||
+        doc.has('geometry') ||
         doc.has('calculus') ||
         doc.has('equation') ||
         doc.has('integrate') ||
@@ -20,8 +19,10 @@ function detectSubject(question){
     ) {
         return 'math';
     }
+
+    // Physics detection with phrase patterns
     if (
-        doc.has('physics') ||
+        doc.match('explain newton\'s #Value law of motion').found ||
         doc.has('velocity') ||
         doc.has('acceleration') ||
         doc.has('force') ||
@@ -34,18 +35,22 @@ function detectSubject(question){
     ) {
         return 'physics';
     }
-    return 'general';
-}   
 
-async function handleQuestion(question) {
-    const subject = detectSubject(question);
-    if (subject == 'math') {
-        return mathAgent.respond(question);
-    } else if (subject === 'physics'){
-        return physicsAgent.respond(question);
-    } else {
-        return await callGeminiAPI(question);
-    }
+    return 'general';
 }
 
-module.exports = { handleQuestion };
+// ...existing code...
+
+// Test the function directly
+if (require.main === module) {
+    const questions = [
+        "What is the result of 2 + 2?",
+        "If a car accelerates from rest at 3 m/s² for 5 seconds, what is its final velocity?",
+        "Who was the first president of the USA?"
+    ];
+    questions.forEach(q => {
+        console.log(`Q: ${q}`);
+        console.log(`Subject: ${detectSubject(q)}`);
+        console.log('---');
+    });
+}
