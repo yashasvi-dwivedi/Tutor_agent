@@ -1,6 +1,12 @@
-function respond(question) {
-  if (question.includes('2+2')) {
-    return "Math Agent: 2 + 2 = 4";
-  }
-  return `Math Agent: I received "${question}", but don't know how to solve it yet.`;
-}
+const math = require('mathjs');
+module.exports = {
+    respond: (question) => {
+        // Try to evaluate math expressions
+        try {
+            const result = math.evaluate(question);
+            return `The answer is ${result}`;
+        } catch {
+            return "Sorry, I couldn't solve that math problem.";
+        }
+    }
+};

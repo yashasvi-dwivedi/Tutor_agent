@@ -1,5 +1,5 @@
 const express = require('express');
-const callGeminiAPI = require('../services/geminiService');
+const tutorAgent = require('../agents/tutorAgent');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -10,7 +10,7 @@ app.post('/ask', async (req, res) => {
     const { question } = req.body;
     if (!question) return res.status(400).send('Question is required');
     try {
-        const answer = await callGeminiAPI(question);
+        const answer = await tutorAgent.handleQuestion(question);
         res.send({ answer });
     } catch (err) {
         res.status(500).send('Error: ' + err.message);
