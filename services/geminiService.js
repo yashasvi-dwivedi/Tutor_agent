@@ -1,15 +1,18 @@
 require('dotenv').config();
 
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 async function callGeminiAPI(question) {
+  // Make sure 'question' is a string
+  const prompt = typeof question === 'string' ? question : JSON.stringify(question);
+
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
   const modelName = "gemini-1.5-flash-001";
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
 
   const body = {
-    contents: [{ parts: [{ text: question }] }]
+    contents: [{ parts: [{ text: prompt }] }]
   };
 
   const response = await fetch(url, {

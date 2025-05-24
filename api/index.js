@@ -1,7 +1,7 @@
 const express = require('express');
 const tutorAgent = require('../agents/tutorAgent');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 app.use(express.static('public'));
 app.use(express.json());
@@ -23,4 +23,10 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 
+});
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection:', reason);
 });
