@@ -1,11 +1,14 @@
 const agents = {};
 
-function registerAgent(subject, agent) {
-    agents[subject] = agent;
+function registerAgent(subject, agentModule) {
+    agents[subject] = agentModule;
 }
 
 function getAgent(subject) {
     return agents[subject];
 }
 
-module.exports = { registerAgent, getAgent };
+module.exports = {
+    registerAgent,
+    getAgent
+};

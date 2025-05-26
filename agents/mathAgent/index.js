@@ -1,46 +1,49 @@
 const math = require('mathjs');
 const callGeminiAPI = require('../../services/geminiService');
 
-// Simple calculator tool for basic expressions
 function simpleCalculator(expression) {
     try {
         if (!/^[\d\s\+\-\*\/\.\(\)]+$/.test(expression)) return null;
-        return eval(expression);
+        return math.evaluate(expression);
     } catch {
         return null;
     }
 }
 
-// Extract math expression from question
 function extractExpression(question) {
-    const q = question.toLowerCase().trim();
-    let match = q.match(/(?:calculate|compute|evaluate|solve|result of|what is)\s(.+?)[\?\.]?$/i);
-    if (match) return match[1];
-    return q.replace(/^(what is|calculate|compute|evaluate|solve)\s+/i, '').replace(/[\?\.]+$/, '').trim();
+    // Clean question: remove all except digits, math symbols, dots, parentheses, and spaces
+    const cleaned = question.toLowerCase().replace(/[^\d\+\-\*\/\.\(\)\s]/g, '').trim();
+    // Match direct math expressions like "4000 + 45000" or "3.5*2"
+    const match = cleaned.match(/\d+(\.\d+)?\s*[\+\-\*\/]\s*\d+(\.\d+)?/);
+    if (match) return match[0];
+    return cleaned; // fallback: the cleaned string might be the expression itself
+}
+
+async function mathAgentRespond(question) {
+    console.log('[Math Agent] Question:', question);
+
+    const expr = extractExpression(question);
+    console.log('[Math Agent] Extracted expression:', expr);
+
+    if (expr) {
+        const result = simpleCalculator(expr);
+        if (result !== null) {
+            return `Math agent: The answer is ${result}`;
+        }
+    }
+
+    // Fallback to mathjs evaluate for more complex expressions
+    try {
+        const result = math.evaluate(expr);
+        return `Math agent: The answer is ${result}`;
+    } catch (err) {
+        console.log('[Math Agent] Error:', err.message);
+    }
+
+    // Final fallback to Gemini
+    return await callGeminiAPI(question);
 }
 
 module.exports = {
-    respond: async (question) => {
-        console.log("\n[ Math Agent ] Received question:", question);
-
-        const expression = extractExpression(question);
-        console.log("[ Math Agent ] Extracted expression:", expression);
-
-        // Check for simple math expression
-        if (/^[\d\.\s\+\-\*\/\(\)]+$/.test(expression)) {
-            const result = simpleCalculator(expression);
-            if (result !== null) {
-                return `Math agent (calculator): The answer is ${result}`;
-            }
-        }
-
-        // Use mathjs for complex expressions
-        try {
-            const result = math.evaluate(expression);
-            return `Math agent: The answer is ${result}`;
-        } catch (error) {
-            console.log("[ Math Agent ] Error evaluating expression:", error.message);
-            return await callGeminiAPI(question);
-        }
-    }
+    respond: mathAgentRespond
 };
