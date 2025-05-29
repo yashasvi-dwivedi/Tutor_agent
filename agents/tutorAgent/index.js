@@ -1,12 +1,12 @@
-const agentRegistry = require('../agentRegistry');
-const mathAgent = require('../mathAgent');
-const physicsAgent = require('../physicsAgent');
-const callGeminiAPI = require('../../services/geminiService');
+// const agentRegistry = require('../agentRegistry');
+// const mathAgent = require('../mathAgent');
+// const physicsAgent = require('../physicsAgent');
+// const callGeminiAPI = require('../../services/geminiService');
 
-agentRegistry.registerAgent('math', mathAgent);
-agentRegistry.registerAgent('physics', physicsAgent);
+// agentRegistry.registerAgent('math', mathAgent);
+// agentRegistry.registerAgent('physics', physicsAgent);
 
-console.log('[API] mathAgent:', mathAgent);
+// console.log('[API] mathAgent:', mathAgent);
 
 async function detectSubject(question) {
     const raw = question.toLowerCase().trim();
@@ -41,19 +41,18 @@ async function detectSubject(question) {
 }
 
 
+// async function handleQuestion(question) {
+//     const subject = await detectSubject(question);
+//     console.log('[handleQuestion] Detected subject:', subject);
+//     const agent = agentRegistry.getAgent(subject);
+//     if (agent) {
+//         return await agent.respond(question); // call as a function
+//     }
+//     // Fallback to Gemini for general questions or if no agent found
+//     return await callGeminiAPI(question);
+// }
 
-async function handleQuestion(question) {
-    const subject = await detectSubject(question);
-    console.log('[handleQuestion] Detected subject:', subject);
-    const agent = agentRegistry.getAgent(subject);
-    if (agent) {
-        return await agent.respond(question); // call as a function
-    }
-    // Fallback to Gemini for general questions or if no agent found
-    return await callGeminiAPI(question);
-}
-
-module.exports = {
-    detectSubject,
-    handleQuestion
-};
+// module.exports = {
+//     detectSubject,
+//     handleQuestion
+// };
